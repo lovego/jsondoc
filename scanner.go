@@ -15,27 +15,6 @@ package json
 
 import "strconv"
 
-// Valid reports whether data is a valid JSON encoding.
-func Valid(data []byte) bool {
-	return checkValid(data, &scanner{}) == nil
-}
-
-// checkValid verifies that data is valid JSON-encoded data.
-// scan is passed in for use by checkValid to avoid an allocation.
-func checkValid(data []byte, scan *scanner) error {
-	scan.reset()
-	for _, c := range data {
-		scan.bytes++
-		if scan.step(scan, c) == scanError {
-			return scan.err
-		}
-	}
-	if scan.eof() == scanError {
-		return scan.err
-	}
-	return nil
-}
-
 // A SyntaxError is a description of a JSON syntax error.
 type SyntaxError struct {
 	msg    string // description of error
