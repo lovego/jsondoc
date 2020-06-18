@@ -30,6 +30,9 @@ const (
 	scanEndArray            // end array (implies scanArrayValue if possible)
 	scanSkipSpace           // space byte; can skip; known to be last "continue" result
 
+	scanBeginComment // begin a comment
+	scanEndComment   // end a comment
+
 	// Stop.
 	scanEnd   // top-level value ended *before* this byte; known to be first "stop" result
 	scanError // hit an error, scanner.err.
@@ -78,6 +81,9 @@ func stateBeginValue(s *scanner, c byte) int {
 	case 'n': // beginning of null
 		s.step = stateN
 		return scanBeginLiteral
+	case '#': // beginning of comment
+		s.step = stateInCommentWhenBeginValue
+		return scanBeginComment
 	}
 	if '1' <= c && c <= '9' { // beginning of 1234.5
 		s.step = state1
@@ -107,6 +113,10 @@ func stateBeginString(s *scanner, c byte) int {
 	if c == '"' {
 		s.step = stateInString
 		return scanBeginLiteral
+	}
+	if c == '#' {
+		s.step = stateInCommentWhenBeginString
+		return scanBeginComment
 	}
 	return s.error(c, "looking for beginning of object key string")
 }
@@ -143,6 +153,10 @@ func stateEndValue(s *scanner, c byte) int {
 		if c == '}' {
 			s.popParseState()
 			return scanEndObject
+		}
+		if c == '#' {
+			s.step = stateInCommentWhenEndValue
+			return scanBeginComment
 		}
 		return s.error(c, "after object key:value pair")
 	case parseArrayValue:

@@ -139,10 +139,10 @@ import (
 //
 var bufferPool sync.Pool
 
-func Marshal(v interface{}) ([]byte, error) {
+func Marshal(v interface{}, escapeHTML bool) ([]byte, error) {
 	b := getBuffer()
 
-	if err := marshal(b, v, types.Options{EscapeHTML: true}); err != nil {
+	if err := marshal(b, v, types.Options{EscapeHTML: escapeHTML}); err != nil {
 		return nil, err
 	}
 	byts := append([]byte(nil), b.Bytes()...)

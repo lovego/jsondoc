@@ -4,7 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"reflect"
+	"regexp"
 	"sort"
+	"strings"
+
+	"github.com/lovego/struct_tag"
 )
 
 // A field represents a single field found in a struct.
@@ -21,7 +25,9 @@ type field struct {
 	omitEmpty bool
 	quoted    bool
 
-	encoder encoderFunc
+	encoder     encoderFunc
+	comment     string
+	commentHTML string
 }
 
 // typeFields returns a list of fields that JSON should recognize for the given type.
@@ -43,7 +49,7 @@ func typeFields(t reflect.Type) []field {
 	var fields []field
 
 	// Buffer to run HTMLSscape on field names.
-	var nameEscBuf bytes.Buffer
+	var buf bytes.Buffer
 
 	for len(next) > 0 {
 		current, next = next, current[:0]
@@ -118,16 +124,21 @@ func typeFields(t reflect.Type) []field {
 						typ:       ft,
 						omitEmpty: opts.Contains("omitempty"),
 						quoted:    quoted,
+						comment:   getComment(sf.Tag),
 					}
 					field.nameBytes = []byte(field.name)
 
 					// Build nameEscHTML and nameNonEsc ahead of time.
-					nameEscBuf.Reset()
-					nameEscBuf.WriteString(`"`)
-					json.HTMLEscape(&nameEscBuf, field.nameBytes)
-					nameEscBuf.WriteString(`":`)
-					field.nameEscHTML = nameEscBuf.String()
+					buf.Reset()
+					buf.WriteString(`"`)
+					json.HTMLEscape(&buf, field.nameBytes)
+					buf.WriteString(`":`)
+					field.nameEscHTML = buf.String()
 					field.nameNonEsc = `"` + field.name + `":`
+
+					buf.Reset()
+					json.HTMLEscape(&buf, []byte(field.comment))
+					field.commentHTML = buf.String()
 
 					fields = append(fields, field)
 					if count[f.typ] > 1 {
@@ -247,4 +258,23 @@ func (x byIndex) Less(i, j int) bool {
 		}
 	}
 	return len(x[i].index) < len(x[j].index)
+}
+
+var whitespaceRegexp = regexp.MustCompile(`\s+`)
+
+// extract comment from struct field tags
+func getComment(tag reflect.StructTag) string {
+	tagStr := string(tag)
+	comment, _ := struct_tag.Lookup(tagStr, `comment`)
+	if comment == `` {
+		comment, _ = struct_tag.Lookup(tagStr, `c`)
+	}
+	if comment != `` {
+		comment = strings.TrimSpace(comment)
+	}
+	if comment != `` {
+		comment = whitespaceRegexp.ReplaceAllString(comment, " ")
+		comment = " # " + comment + "\n"
+	}
+	return comment
 }

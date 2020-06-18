@@ -30,6 +30,15 @@ type sliceEncoder struct {
 }
 
 func (se sliceEncoder) encode(buf *types.Buffer, v reflect.Value, opts types.Options) {
+	if v.Len() == 0 {
+		typ := v.Type()
+		if opts.NotRecursion(typ) {
+			v = reflect.MakeSlice(typ, 1, 1)
+			v.Index(0).Set(reflect.Zero(typ.Elem()))
+			opts.AppendConvertedTypeInUpperLayers(typ)
+		}
+	}
+
 	if v.IsNil() {
 		buf.WriteString("null")
 		return
@@ -44,6 +53,9 @@ type arrayEncoder struct {
 func (ae arrayEncoder) encode(buf *types.Buffer, v reflect.Value, opts types.Options) {
 	buf.WriteByte('[')
 	n := v.Len()
+	if n > 0 {
+		opts.WriteCommentIfPresent(buf)
+	}
 	for i := 0; i < n; i++ {
 		if i > 0 {
 			buf.WriteByte(',')

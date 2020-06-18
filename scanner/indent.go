@@ -23,8 +23,8 @@ func Indent(dst *bytes.Buffer, src []byte, prefix, indent string) error {
 	origLen := dst.Len()
 	var scan scanner
 	scan.reset()
-	needIndent := false
 	depth := 0
+	needNewline := false
 	for _, c := range src {
 		scan.bytes++
 		v := scan.step(&scan, c)
@@ -34,42 +34,48 @@ func Indent(dst *bytes.Buffer, src []byte, prefix, indent string) error {
 		if v == scanError {
 			break
 		}
-		if needIndent && v != scanEndObject && v != scanEndArray {
-			needIndent = false
-			depth++
-			newline(dst, prefix, indent, depth)
+		if needNewline {
+			needNewline = false
+			if v != scanEndObject && v != scanEndArray && v != scanBeginComment {
+				newline(dst, prefix, indent, depth)
+			}
 		}
 
+		switch v {
 		// Emit semantically uninteresting bytes
 		// (in particular, punctuation in strings) unmodified.
-		if v == scanContinue {
+		case scanContinue:
 			dst.WriteByte(c)
+			continue
+		case scanBeginComment:
+			dst.WriteString("\t ")
+			dst.WriteByte(c)
+			continue
+		case scanEndComment:
+			newline(dst, prefix, indent, depth)
 			continue
 		}
 
 		// Add spacing around real punctuation.
 		switch c {
 		case '{', '[':
-			// delay indent so that empty object and array are formatted as {} and [].
-			needIndent = true
 			dst.WriteByte(c)
+			depth++
+			// delay newline so that empty object and array are formatted as {} and [].
+			needNewline = true
 
 		case ',':
 			dst.WriteByte(c)
-			newline(dst, prefix, indent, depth)
+			// delay newline so that comment are formatted on the same line.
+			needNewline = true
 
 		case ':':
 			dst.WriteByte(c)
 			dst.WriteByte(' ')
 
 		case '}', ']':
-			if needIndent {
-				// suppress indent in empty object/array
-				needIndent = false
-			} else {
-				depth--
-				newline(dst, prefix, indent, depth)
-			}
+			depth--
+			newline(dst, prefix, indent, depth)
 			dst.WriteByte(c)
 
 		default:

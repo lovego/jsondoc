@@ -115,6 +115,14 @@ type ptrEncoder struct {
 
 func (pe ptrEncoder) encode(buf *types.Buffer, v reflect.Value, opts types.Options) {
 	if v.IsNil() {
+		typ := v.Type()
+		if opts.NotRecursion(typ) {
+			v = reflect.New(typ.Elem())
+			opts.AppendConvertedTypeInUpperLayers(typ)
+		}
+	}
+
+	if v.IsNil() {
 		buf.WriteString("null")
 		return
 	}
@@ -126,6 +134,7 @@ func interfaceEncoder(buf *types.Buffer, v reflect.Value, opts types.Options) {
 		buf.WriteString("null")
 		return
 	}
+	v = v.Elem()
 	Of(v)(buf, v, opts)
 }
 

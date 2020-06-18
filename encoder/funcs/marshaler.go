@@ -35,8 +35,7 @@ func (ce condAddrEncoder) encode(buf *types.Buffer, v reflect.Value, opts types.
 
 func marshalerEncoder(buf *types.Buffer, v reflect.Value, opts types.Options) {
 	if v.Kind() == reflect.Ptr && v.IsNil() {
-		buf.WriteString("null")
-		return
+		v = reflect.New(v.Type().Elem())
 	}
 	m, ok := v.Interface().(Marshaler)
 	if !ok {
@@ -72,8 +71,7 @@ func addrMarshalerEncoder(buf *types.Buffer, v reflect.Value, _ types.Options) {
 
 func textMarshalerEncoder(buf *types.Buffer, v reflect.Value, opts types.Options) {
 	if v.Kind() == reflect.Ptr && v.IsNil() {
-		buf.WriteString("null")
-		return
+		v = reflect.New(v.Type().Elem())
 	}
 	m := v.Interface().(encoding.TextMarshaler)
 	b, err := m.MarshalText()

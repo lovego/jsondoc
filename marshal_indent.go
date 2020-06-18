@@ -8,7 +8,7 @@
 //
 // See "JSON and Go" for an introduction to this package:
 // https://golang.org/doc/articles/json_and_go.html
-package json
+package jsondoc
 
 import (
 	"bytes"
@@ -20,8 +20,8 @@ import (
 // MarshalIndent is like json.Marshal but applies Indent to format the output.
 // Each JSON element in the output will begin on a new line beginning with prefix
 // followed by one or more copies of indent according to the indentation nesting.
-func MarshalIndent(v interface{}, prefix, indent string) ([]byte, error) {
-	b, err := encoder.Marshal(v)
+func MarshalIndent(v interface{}, escapeHTML bool, prefix, indent string) ([]byte, error) {
+	b, err := encoder.Marshal(v, escapeHTML)
 	if err != nil {
 		return nil, err
 	}

@@ -28,11 +28,22 @@ type mapEncoder struct {
 }
 
 func (me mapEncoder) encode(buf *types.Buffer, v reflect.Value, opts types.Options) {
+	if v.Len() == 0 {
+		typ := v.Type()
+		if opts.NotRecursion(typ) {
+			v = reflect.MakeMap(typ)
+			v.SetMapIndex(reflect.Zero(typ.Key()), reflect.Zero(typ.Elem()))
+			opts.AppendConvertedTypeInUpperLayers(typ)
+		}
+	}
 	if v.IsNil() {
 		buf.WriteString("null")
 		return
 	}
 	buf.WriteByte('{')
+	if v.Len() > 0 {
+		opts.WriteCommentIfPresent(buf)
+	}
 
 	// Extract and sort the keys.
 	keys := v.MapKeys()
