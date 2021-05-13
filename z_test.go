@@ -80,12 +80,12 @@ func ExampleMarshalIndent_nil_pointer() {
 	// Output:
 	// {
 	//   "Name": "",	 # 名称
-	//   "Next": {	 # 后一个
+	//   "*Next": {	 # 后一个
 	//     "Name": "",	 # 名称
-	//     "Next": null,	 # 后一个
-	//     "Time": "0001-01-01T00:00:00Z"
+	//     "*Next": null,	 # 后一个
+	//     "*Time": "0001-01-01T00:00:00Z"
 	//   },
-	//   "Time": "0001-01-01T00:00:00Z"
+	//   "*Time": "0001-01-01T00:00:00Z"
 	// } <nil>
 }
 
@@ -101,7 +101,7 @@ func ExampleMarshalIndent_nil_pointer_to_anonymous_field() {
 	// Output:
 	// {
 	//   "Name": "",	 # 名称
-	//   "Next": null,	 # 后一个
-	//   "Time": "0001-01-01T00:00:00Z"
+	//   "*Next": null,	 # 后一个
+	//   "*Time": "0001-01-01T00:00:00Z"
 	// } <nil>
 }

@@ -92,10 +92,12 @@ func typeFields(t reflect.Type) []field {
 				copy(index, f.index)
 				index[len(f.index)] = i
 
+				point := ""
 				ft := sf.Type
 				if ft.Name() == "" && ft.Kind() == reflect.Ptr {
 					// Follow pointer.
 					ft = ft.Elem()
+					point = "*"
 				}
 
 				// Only strings, floats, integers, and booleans can be quoted.
@@ -118,7 +120,7 @@ func typeFields(t reflect.Type) []field {
 						name = sf.Name
 					}
 					field := field{
-						name:      name,
+						name:      point + name,
 						tag:       tagged,
 						index:     index,
 						typ:       ft,
