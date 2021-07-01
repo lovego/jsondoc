@@ -1,2 +1,4 @@
 github.com/lovego/struct_tag v0.0.0-20200821111615-1a11055a2d31 h1:ivs6MCONAgAxVwtFzw076W2Y71Ey3JvXoq84QlDyyDs=
 github.com/lovego/struct_tag v0.0.0-20200821111615-1a11055a2d31/go.mod h1:2Y5edfo2L39OxqqJqk0w67T136Njegcfi6YeOCbEkng=
+github.com/lovego/struct_tag v0.0.3 h1:7WDwH8jQv2hFFikoU05OdIOGS6riL2TEeGbminrY/+w=
+github.com/lovego/struct_tag v0.0.3/go.mod h1:Q1otUkTCkcK/oo650zZiElIpQD2CAEJDZcjjhZ9aJnk=

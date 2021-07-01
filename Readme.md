@@ -1,6 +1,11 @@
 # jsondoc
 Package jsondoc makes a json like documentation for human reading, not for machine decoding.
 
+[![Build Status](https://github.com/lovego/jsondoc/actions/workflows/go.yml/badge.svg)](https://github.com/lovego/jsondoc/actions/workflows/go.yml)
+[![Coverage Status](https://coveralls.io/repos/github/lovego/jsondoc/badge.svg?branch=master)](https://coveralls.io/github/lovego/jsondoc)
+[![Go Report Card](https://goreportcard.com/badge/github.com/lovego/jsondoc)](https://goreportcard.com/report/github.com/lovego/jsondoc)
+[![Documentation](https://pkg.go.dev/badge/github.com/lovego/jsondoc)](https://pkg.go.dev/github.com/lovego/jsondoc@v0.0.1)
+
 It's source code is copied from the Golang 1.12.5 encoding/json package, and made these modifications:
 
 1. Remove the unwanted codes, retain only `MarshalIndent`.
